@@ -1,0 +1,18 @@
+<% layout('layout') %> 
+
+<h2>Lista de Agendamentos</h2>
+
+<% if (agendamentos.length > 0) { %>
+    <ul>
+        <% agendamentos.forEach(agendamento => { %>
+            <li>
+                **Data/Hora:** <%= new Date(agendamento.data_hora).toLocaleString('pt-BR') %> | 
+                **Pet:** <%= agendamento.pet.nome %> |
+                **Serviço:** <%= agendamento.servicoContratado.nome %> |
+                **Status:** <%= agendamento.status %>
+            </li>
+        <% }); %>
+    </ul>
+<% } else { %>
+    <p>Nenhum agendamento encontrado.</p>
+<% } %>

@@ -1,0 +1,42 @@
+<% layout('layout') %>
+
+<div style="max-width: 600px; margin: 40px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px;">
+    <h2>Agendar Novo Serviço</h2>
+
+    <form action="/agendamentos" method="POST">
+        
+        <div style="margin-bottom: 15px;">
+            <label for="animal_id" style="display: block; margin-bottom: 5px;">Seu Pet:</label>
+            <select id="animal_id" name="animal_id" required style="width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">-- Selecione um Animal --</option>
+                <% animais.forEach(animal => { %>
+                    <option value="<%= animal.id %>"><%= animal.nome %> (<%= animal.especie %>)</option>
+                <% }); %>
+            </select>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label for="servico_id" style="display: block; margin-bottom: 5px;">Serviço:</label>
+            <select id="servico_id" name="servico_id" required style="width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">-- Selecione um Serviço --</option>
+                <% servicos.forEach(servico => { %>
+                    <option value="<%= servico.id %>"><%= servico.nome %> (R$ <%= servico.preco %>)</option>
+                <% }); %>
+            </select>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <label for="data_hora" style="display: block; margin-bottom: 5px;">Data e Hora:</label>
+            <input type="datetime-local" id="data_hora" name="data_hora" required style="width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ddd; border-radius: 4px;">
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label for="observacoes" style="display: block; margin-bottom: 5px;">Observações:</label>
+            <textarea id="observacoes" name="observacoes" rows="3" style="width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+        </div>
+
+        <button type="submit" style="width: 100%; padding: 10px; background-color: #2ecc71; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Confirmar Agendamento
+        </button>
+    </form>
+</div>

@@ -1,0 +1,23 @@
+<% layout('layout') %>
+<div style="text-align: center; padding: 50px;">
+    <h2>Bem-vindo ao Sistema de Agendamento do Pet Shop!</h2>
+    <p>Sua plataforma completa para gerenciar serviços, animais e horários.</p>
+    
+    <div style="margin-top: 30px;">
+        <% // A variável 'usuario' é injetada via middleware no app.js %>
+        <% if (typeof usuario !== 'undefined' && usuario) { %>
+            <p>Olá, <%= usuario.nome %>! Use o menu acima para gerenciar.</p>
+            <a href="/agendamentos/create" style="display: inline-block; padding: 10px 20px; background-color: #2ecc71; color: white; text-decoration: none; border-radius: 5px;">
+                Fazer Novo Agendamento
+            </a>
+        <% } else { %>
+            <p>Faça login para começar a agendar serviços para o seu pet.</p>
+            <a href="/login" style="display: inline-block; padding: 10px 20px; background-color: #3498db; color: white; text-decoration: none; border-radius: 5px;">
+                Fazer Login
+            </a>
+            <a href="/register" style="display: inline-block; padding: 10px 20px; background-color: #f39c12; color: white; text-decoration: none; border-radius: 5px; margin-left: 10px;">
+                Registrar
+            </a>
+        <% } %>
+    </div>
+</div>
