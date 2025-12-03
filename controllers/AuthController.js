@@ -36,9 +36,9 @@ exports.login = async (req, res) => {
       (err, token) => {
         if (err) throw err;
         
-        // Se a requisição aceita HTML (Web), podemos tentar redirecionar (exemplo)
+        // Se a requisição aceita HTML (Web), redireciona após setar o cookie
         if (!req.accepts('json')) {
-            // Em uma aplicação real, você setaria o token em um cookie ou sessao aqui.
+            res.cookie('token', token, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 }); // 1 dia
             console.log(`Usuário ${usuario.nome} logado. JWT gerado.`);
             return res.redirect('/'); 
         }

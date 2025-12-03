@@ -15,4 +15,9 @@ router.get('/login', (req, res) => {
     res.render('usuarios/login', { title: 'Login' });
 });
 
+// Rota GET para exibir o formulário de registro (Web)
+router.get('/register', (req, res) => {
+    res.render('usuarios/register', { title: 'Registrar' });
+});
+
 module.exports = router;

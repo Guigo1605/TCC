@@ -1,28 +1,32 @@
 ## Purpose
-This file gives AI coding agents the minimal, actionable context to work productively on this Express + EJS + Sequelize codebase.
+This file gives AI coding agents the minimal, actionable context to work productively on this Express + EJS + Sequelize codebase. This is a pet services scheduler (PetShop) with dual UI/API surfaces.
 
 **Big Picture**
-- **Architecture**: Server-rendered web app (EJS) with a small JSON API. Express routes serve both web views and API endpoints. Sequelize + MySQL is used for persistence.
-- **Entry point**: `app.js` — sets up EJS layouts, cookie-based JWT decoding (for views), and mounts web and API routes.
-- **Models & associations**: All models live in `models/` and are required from `app.js` before `config/associations.js` is invoked. The DB connection is in `config/database.js`.
+- **Architecture**: Server-rendered web app (EJS) with a REST API. Express routes serve both web views (GET/POST forms) and JSON API endpoints. Sequelize + MySQL handles persistence. Domain: Usuario (accounts), Animal (pets), Servico (services), Agendamento (bookings).
+- **Entry point**: `app.js` — loads models, sets up middleware chain (EJS layout, cookie JWT decoding), defines associations, then mounts routes in this exact order: auth → logout → web routes (`/agendamentos`) → API routes (`/api/*`).
+- **Models & lifecycle**: All models defined in `models/` are required into `app.js` before `config/associations.js` executes. Password hashing happens in `Usuario` `beforeCreate` hook (bcrypt). Database sync with `{ alter: true }` runs at startup.
 
 **Auth / Sessions**
-- Views expect a cookie named `token`. `app.js` verifies the JWT and injects `res.locals.usuario` for templates (see `app.js` middleware). Example payload shape: `{ usuario: { id, perfil, nome } }` (created in `controllers/AuthController.js`).
-- API endpoints use an Authorization header in the form `Bearer <token>`; see `middleware/authMiddleware.js` which verifies the token and attaches `req.usuario`.
+- **Web (Views)**: Cookie named `token` (set by login response). `app.js` middleware verifies JWT, injects `res.locals.usuario` for EJS templates. Payload: `{ usuario: { id, perfil, nome } }` where `perfil` is 'admin' or 'cliente'. Unauthorized users have `res.locals.usuario = null`.
+- **API**: Authorization header `Bearer <token>`. `middleware/authMiddleware.js` validates and attaches `req.usuario` (same shape). Also includes inline `checkAdmin` middleware in routes (e.g., `usuarioRoutes.js`) for role-based access control.
 
 **Conventions & Patterns (project-specific)**
-- View layout: `express-ejs-layouts` is used and must be registered before routes. The layout name is `layout` (look in `views/layout.ejs`).
-- Controllers branch on `req.accepts('json')` to return either JSON (API) or redirect/render (web). See `controllers/AuthController.js` for a clear example.
-- Models may include lifecycle hooks (e.g., `models/Usuario.js` hashes passwords in `beforeCreate`). Prefer using model hooks for cross-cutting logic like password hashing.
-- `app.js` calls `sequelize.sync({ alter: true })` at startup — it mutates DB schema. Avoid changing this behavior for production without discussion.
+- **Dual response pattern**: Controllers use `req.accepts('json')` to branch responses. If JSON requested (API), return JSON; else render EJS or redirect. Example: `AuthController.login` returns `{ token, perfil }` for API or redirects to `/` for web.
+- **View layout**: `express-ejs-layouts` middleware registered early (before routes). Layout file is `views/layout.ejs`. Controllers render views with `res.render('usuarios/login', { title: ... })`. User data via `res.locals.usuario` accessible in all templates.
+- **Model hooks**: Cross-cutting logic lives in Sequelize hooks. `Usuario` model hashes password in `beforeCreate` using bcrypt. Do not hash in controller—rely on model lifecycle.
+- **Route organization**: Web routes (render HTML) mounted on root (`/`) and `/agendamentos`. API routes mounted on `/api/*` with `authMiddleware` guard. Inline role checks (e.g., `checkAdmin`) appear directly in route files, not in middleware.
+- **Database schema**: `sequelize.sync({ alter: true })` runs at startup—mutates schema based on model definitions. Avoid using migrations; schema changes defined in model files.
+- **Associations**: Defined in `config/associations.js` after models loaded. Uses aliases (e.g., `as: 'pets'`, `as: 'cliente'`) for eager loading and template clarity.
 
 **Files to inspect for context**
-- `app.js` — app wiring, layout + cookie JWT middleware, route mounting.
-- `controllers/AuthController.js` — login/register flows and JWT creation.
-- `middleware/authMiddleware.js` — API token verification, attaches `req.usuario`.
-- `models/*.js` — Sequelize models and hooks (e.g., `models/Usuario.js`).
-- `config/database.js` & `config/associations.js` — DB connection and associations.
-- `routes/*.js` — where endpoints are declared; web routes live at root and `/agendamentos`, API routes under `/api/*`.
+- `app.js` — app wiring, middleware chain (cookie JWT, layout), route mount order, DB sync.
+- `config/database.js` — Sequelize connection (disable logging there to debug SQL).
+- `config/associations.js` — all model relationships, aliases used in queries and templates.
+- `models/Usuario.js` — example of lifecycle hooks (`beforeCreate` password hashing).
+- `controllers/AuthController.js` — JWT creation, `req.accepts('json')` branching pattern.
+- `middleware/authMiddleware.js` — API Bearer token extraction and `req.usuario` attachment.
+- `routes/usuarioRoutes.js` — example of role-based `checkAdmin` middleware and route guards.
+- `routes/authRoutes.js` — web form render (GET `/login`) vs. API endpoint (POST `/login`) in same file.
 
 **Environment & running**
 - Required env vars (used directly in code): `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `JWT_SECRET`, `PORT`.
@@ -43,8 +47,11 @@ This file gives AI coding agents the minimal, actionable context to work product
 
 **When changing or adding code**
 - If adding a new model, require it in `app.js` (so associations file sees it), then add relationships in `config/associations.js`.
-- If implementing auth-protected API endpoints, use `middleware/authMiddleware.js` (expects header `Authorization: Bearer <token>`). For web routes that rely on page rendering, rely on `res.locals.usuario` which is populated from cookie.
+- If implementing auth-protected API endpoints, use `middleware/authMiddleware.js` (expects header `Authorization: Bearer <token>`). For web routes that render pages, rely on `res.locals.usuario` populated from cookie.
+- If adding role-based access, define `checkAdmin` or similar inline in the route file (not a separate middleware), then apply before controller.
 - Avoid removing `express-ejs-layouts` or moving its registration after route mounting — layout middleware must come before routes.
+- Do not hash passwords in controllers; instead rely on `Usuario` model `beforeCreate` hook (already in place).
+- When updating user-facing routes, ensure both web form display (GET) and API endpoint (POST) are in the same route file if they share purpose.
 
 **Examples (quick references)**
 - Cookie -> template user injection (from `app.js`):
