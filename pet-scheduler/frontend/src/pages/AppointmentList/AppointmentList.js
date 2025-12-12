@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
-
-// IMPORTAR O NOVO COMPONENTE DE EDIÇÃO A SER CRIADO (STEP 3)
-// import EditAppointmentModal from './EditAppointmentModal'; 
+import EditAppointmentModal from './EditAppointmentModal'; // << Importação do NOVO componente (criaremos no próximo passo)
 
 function AppointmentList() {
   const [appointments, setAppointments] = useState([]);
@@ -22,7 +20,7 @@ function AppointmentList() {
     return date.toLocaleDateString('pt-BR', options);
   }
 
-  // --- FUNÇÃO PARA CARREGAR AGENDAMENTOS ---
+  // Função para carregar agendamentos
   async function loadAppointments() {
     try {
       setLoading(true);
@@ -40,13 +38,12 @@ function AppointmentList() {
     loadAppointments();
   }, []);
 
-  // --- NOVO: FUNÇÃO PARA EXCLUIR AGENDAMENTO ---
+  // --- Lógica de Exclusão (JÁ IMPLEMENTADA) ---
   async function handleDelete(appointmentId) {
     if (window.confirm('Tem certeza que deseja cancelar este agendamento? Esta ação é irreversível.')) {
         try {
             await api.delete(`/appointments/${appointmentId}`);
             
-            // Recarrega a lista ou filtra o agendamento excluído
             setAppointments(appointments.filter(appt => appt.id !== appointmentId));
             alert('Agendamento cancelado com sucesso!');
         } catch (error) {
@@ -56,9 +53,9 @@ function AppointmentList() {
     }
   }
   
-  // --- NOVO: FUNÇÕES DE EDIÇÃO (Preparação para o Step 3) ---
+  // --- Lógica de Edição ---
   const handleEdit = (appointment) => {
-    setEditingAppointment(appointment); // Abre o modal/formulário de edição
+    setEditingAppointment(appointment); 
   };
 
   const handleUpdateSuccess = () => {
@@ -89,40 +86,50 @@ function AppointmentList() {
                 <th style={tableHeaderStyle}>Espécie</th>
                 <th style={tableHeaderStyle}>Data e Hora</th>
                 <th style={tableHeaderStyle}>Motivo</th>
-                <th style={tableHeaderStyle}>Ações</th> {/* NOVA COLUNA */}
+                <th style={tableHeaderStyle}>Ações</th>
               </tr>
             </thead>
             <tbody>
-              {appointments.map((appt) => (
-                <tr key={appt.id} style={{ borderBottom: '1px solid #eee' }}>
-                  <td style={tableCellStyle}>{appt.pet.name}</td>
-                  <td style={tableCellStyle}>{appt.pet.species}</td>
-                  <td style={tableCellStyle}>{formatAppointmentDate(appt.date)}</td>
-                  <td style={tableCellStyle}>{appt.description || 'N/A'}</td>
-                  
-                  {/* NOVA CÉLULA DE AÇÕES */}
-                  <td style={tableCellStyle}>
-                    <button 
-                        // onClick={() => handleEdit(appt)} 
-                        style={{ marginRight: '10px', padding: '5px 10px', cursor: 'pointer', backgroundColor: '#ffc107' }}
-                    >
-                        Editar (Próx. passo)
-                    </button>
-                    <button 
-                        onClick={() => handleDelete(appt.id)}
-                        style={{ padding: '5px 10px', cursor: 'pointer', backgroundColor: '#dc3545', color: 'white' }}
-                    >
-                        Excluir
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {appointments.map((appt) => {
+                // NOVO: Verifica se a data do agendamento é no passado
+                const isPast = new Date(appt.date) < new Date();
+
+                return (
+                  <tr key={appt.id} style={{ borderBottom: '1px solid #eee' }}>
+                    <td style={tableCellStyle}>{appt.pet.name}</td>
+                    <td style={tableCellStyle}>{appt.pet.species}</td>
+                    <td style={tableCellStyle}>{formatAppointmentDate(appt.date)}</td>
+                    <td style={tableCellStyle}>{appt.description || 'N/A'}</td>
+                    
+                    <td style={tableCellStyle}>
+                        {isPast ? (
+                            <span style={{ color: 'gray' }}>Consulta Concluída/Passada</span>
+                        ) : (
+                            // Botões de Ação aparecem apenas se a consulta for futura
+                            <>
+                                <button 
+                                    onClick={() => handleEdit(appt)} 
+                                    style={{ marginRight: '10px', padding: '5px 10px', cursor: 'pointer', backgroundColor: '#ffc107' }}
+                                >
+                                    Editar
+                                </button>
+                                <button 
+                                    onClick={() => handleDelete(appt.id)}
+                                    style={{ padding: '5px 10px', cursor: 'pointer', backgroundColor: '#dc3545', color: 'white' }}
+                                >
+                                    Excluir
+                                </button>
+                            </>
+                        )}
+                    </td>
+                  </tr>
+                )})}
             </tbody>
           </table>
         )}
       </main>
       
-      {/* // --- NOVO: MODAL DE EDIÇÃO (Será implementado no Step 3) ---
+      {/* NOVO: MODAL DE EDIÇÃO */}
       {editingAppointment && (
           <EditAppointmentModal 
               appointment={editingAppointment}
@@ -130,7 +137,6 @@ function AppointmentList() {
               onUpdateSuccess={handleUpdateSuccess}
           />
       )} 
-      */}
       
     </div>
   );
