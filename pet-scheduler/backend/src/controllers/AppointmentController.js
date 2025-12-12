@@ -1,22 +1,21 @@
+const { Op } = require('sequelize');
+const Animal = require('../models/Animal'); // Corrigido para Animal (não Pet)
 const Appointment = require('../models/Appointment');
-const Animal = require('../models/Animal');
-const { Op } = require('sequelize'); // Usado para consultas complexas no Sequelize
 
 module.exports = {
 
-  // --- REGISTRAR NOVO AGENDAMENTO ---
+  // --- 1. CRIAR AGENDAMENTO (POST /appointments) ---
   async store(req, res) {
     const user_id = req.userId;
     const { animal_id, date, description } = req.body;
 
-    // 1. Validar a data
     if (!date || isNaN(new Date(date))) {
       return res.status(400).json({ error: 'Data de agendamento inválida.' });
     }
     
     const appointmentDate = new Date(date);
     
-    // 2. Verifica se o animal existe E se ele pertence ao usuário logado
+    // 1. Verifica se o animal existe e pertence ao usuário
     const animal = await Animal.findOne({ 
         where: { id: animal_id, user_id }
     });
@@ -25,22 +24,18 @@ module.exports = {
       return res.status(404).json({ error: 'Animal não encontrado ou não pertence a este tutor.' });
     }
     
-    // 3. (OPCIONAL) Validação de horário no passado
+    // 2. Verifica se a data é no futuro
     if (appointmentDate < new Date()) {
       return res.status(400).json({ error: 'Não é possível agendar no passado.' });
     }
 
-    // 4. (OPCIONAL) Verificação de Conflito de Horário
-    // Vamos verificar se já existe um agendamento para o MESMO animal no mesmo horário 
-    // (ou se há um conflito de horário na clínica - que exigiria mais lógica de staff)
-    
-    // Simplificando: vamos garantir que o mesmo animal não agende duas vezes no mesmo minuto.
+    // 3. Verifica conflito de horário para o mesmo animal (Regra de Negócio)
     const hasConflict = await Appointment.findOne({
       where: { 
         animal_id,
         date: appointmentDate,
         status: {
-          [Op.notIn]: ['canceled', 'completed'] // Ignora consultas canceladas/completadas
+          [Op.notIn]: ['canceled', 'completed']
         }
       }
     });
@@ -49,11 +44,10 @@ module.exports = {
       return res.status(400).json({ error: 'Este animal já tem uma consulta agendada para este horário.' });
     }
     
-    // 5. Cria o agendamento
     try {
       const appointment = await Appointment.create({
-        user_id, // Tutor
-        animal_id, // Pet
+        user_id,
+        animal_id,
         date: appointmentDate,
         description,
       });
@@ -66,19 +60,99 @@ module.exports = {
     }
   },
 
-  // --- LISTAR AGENDAMENTOS DO USUÁRIO LOGADO ---
+  // --- 2. LISTAR AGENDAMENTOS (GET /appointments) ---
   async index(req, res) {
     const user_id = req.userId;
     
-    // Busca todos os agendamentos do usuário, incluindo dados do animal (pet)
     const appointments = await Appointment.findAll({
         where: { user_id },
-        order: [['date', 'ASC']], // Ordena por data
+        order: [['date', 'ASC']],
         include: [
             { association: 'pet', attributes: ['name', 'species', 'breed'] }
         ]
     });
     
     return res.json(appointments);
-  }
+  },
+  
+  // --- 3. ATUALIZAR AGENDAMENTO (PUT /appointments/:appointment_id) ---
+  async update(req, res) {
+    const { appointment_id } = req.params;
+    const { date, description, status } = req.body;
+    const user_id = req.userId;
+
+    try {
+      const appointment = await Appointment.findByPk(appointment_id, {
+        // Inclui o pet para verificar a propriedade do usuário
+        include: [{ model: Animal, as: 'pet', attributes: ['user_id'] }] 
+      });
+
+      if (!appointment) {
+        return res.status(404).json({ error: 'Agendamento não encontrado.' });
+      }
+
+      // Verifica se o agendamento pertence ao usuário logado
+      if (appointment.pet.user_id !== user_id) {
+        return res.status(401).json({ error: 'Operação não autorizada.' });
+      }
+      
+      // Validação de data, se estiver sendo alterada
+      if (date && new Date(date) < new Date()) {
+          return res.status(400).json({ error: 'Não é possível agendar no passado.' });
+      }
+
+      // Atualiza os dados
+      await appointment.update({
+        date: date ? new Date(date) : appointment.date, // Só atualiza se fornecido
+        description,
+        status,
+      });
+
+      // Retorna o agendamento atualizado com os dados do pet
+      const result = await Appointment.findByPk(appointment.id, {
+        include: [{ association: 'pet' }]
+      });
+
+      return res.json(result);
+
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: 'Erro ao atualizar agendamento.' });
+    }
+  },
+
+  // --- 4. EXCLUIR AGENDAMENTO (DELETE /appointments/:appointment_id) ---
+  async delete(req, res) {
+    const { appointment_id } = req.params;
+    const user_id = req.userId;
+
+    try {
+      const appointment = await Appointment.findByPk(appointment_id, {
+        // Inclui o pet para verificar a propriedade do usuário
+        include: [{ model: Animal, as: 'pet', attributes: ['user_id'] }]
+      });
+
+      if (!appointment) {
+        return res.status(404).json({ error: 'Agendamento não encontrado.' });
+      }
+
+      // Verifica se o agendamento pertence ao usuário logado
+      if (appointment.pet.user_id !== user_id) {
+        return res.status(401).json({ error: 'Operação não autorizada.' });
+      }
+
+      // Regra de Negócio: Impede exclusão de agendamentos passados
+      const now = new Date();
+      if (new Date(appointment.date) < now) {
+        return res.status(400).json({ error: 'Não é possível excluir agendamentos passados.' });
+      }
+
+      await appointment.destroy();
+
+      return res.status(204).send(); // Sucesso sem conteúdo
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: 'Erro ao excluir agendamento.' });
+    }
+  },
 };

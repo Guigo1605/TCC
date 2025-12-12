@@ -17,38 +17,24 @@ function Home() {
       <main style={{ padding: '40px', textAlign: 'center' }}>
         <h3>O que você deseja fazer hoje?</h3>
         
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '50px', marginTop: '30px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '30px', flexWrap: 'wrap', marginTop: '30px' }}>
           
           {/* Opção 1: Registrar Novo Animal */}
-          <Link 
-            to="/register-animal" 
-            style={{ 
-              textDecoration: 'none', 
-              padding: '30px', 
-              border: '2px solid #007bff', 
-              borderRadius: '8px', 
-              width: '200px', 
-              backgroundColor: '#e6f7ff' 
-            }}
-          >
+          <Link to="/register-animal" style={{ textDecoration: 'none', padding: '25px', border: '2px solid #007bff', borderRadius: '8px', width: '200px', backgroundColor: '#e6f7ff' }}>
             <h4>🐕 Registrar Novo Animal</h4>
-            <p>Adicione um novo pet para gerenciar consultas.</p>
+            <p>Adicione um novo pet.</p>
           </Link>
 
           {/* Opção 2: Agendar Horário */}
-          <Link 
-            to="/schedule" 
-            style={{ 
-              textDecoration: 'none', 
-              padding: '30px', 
-              border: '2px solid #28a745', 
-              borderRadius: '8px', 
-              width: '200px', 
-              backgroundColor: '#e6ffe6' 
-            }}
-          >
+          <Link to="/schedule" style={{ textDecoration: 'none', padding: '25px', border: '2px solid #28a745', borderRadius: '8px', width: '200px', backgroundColor: '#e6ffe6' }}>
             <h4>🏥 Agendar Horário</h4>
-            <p>Escolha a data e hora para a próxima consulta.</p>
+            <p>Escolha a data e hora.</p>
+          </Link>
+
+          {/* Opção 3: Ver Agendamentos (NOVA) */}
+          <Link to="/appointments-list" style={{ textDecoration: 'none', padding: '25px', border: '2px solid #ffc107', borderRadius: '8px', width: '200px', backgroundColor: '#fff8e1' }}>
+            <h4>📄 Ver Agendamentos</h4>
+            <p>Visualize suas consultas futuras.</p>
           </Link>
         </div>
       </main>

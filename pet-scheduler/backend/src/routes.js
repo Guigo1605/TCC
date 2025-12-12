@@ -1,7 +1,9 @@
+// backend/src/routes.js
 const { Router } = require('express');
 const UserController = require('./controllers/UserController');
-const AnimalController = require('./controllers/AnimalController');
-const AppointmentController = require('./controllers/AppointmentController'); // << Novo Controller
+// 👇 CORREÇÃO: Deve ser AnimalController
+const AnimalController = require('./controllers/AnimalController'); 
+const AppointmentController = require('./controllers/AppointmentController');
 const authMiddleware = require('./middlewares/auth');
 
 const routes = new Router();
@@ -20,5 +22,9 @@ routes.get('/animals', AnimalController.index);
 // --- Rotas de Agendamentos (Protegidas) ---
 routes.post('/appointments', AppointmentController.store);
 routes.get('/appointments', AppointmentController.index);
+
+// Rotas de Edição e Exclusão de Agendamentos (Novas)
+routes.put('/appointments/:appointment_id', AppointmentController.update); // Edição
+routes.delete('/appointments/:appointment_id', AppointmentController.delete); // Exclusão
 
 module.exports = routes;

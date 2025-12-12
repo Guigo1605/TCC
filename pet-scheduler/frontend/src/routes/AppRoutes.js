@@ -4,20 +4,26 @@ import { useAuth } from '../context/AuthContext';
 
 // Páginas Importadas
 import Login from '../pages/Login/Login';
+import Signup from '../pages/Signup/Signup'; 
 import Home from '../pages/Home/Home'; 
 import RegisterAnimal from '../pages/RegisterAnimal/RegisterAnimal';
 import Schedule from '../pages/Schedule/Schedule';
-import Signup from '../pages/Signup/Signup'; // << Importação da página de Cadastro
+import AppointmentList from '../pages/AppointmentList/AppointmentList'; // << Novo Import
 
-// Componente para rotas privadas
+/**
+ * Componente de Rota Privada: Garante que apenas usuários logados 
+ * possam acessar o componente 'Element'.
+ */
 function PrivateRoute({ element: Element, ...rest }) {
   const { signed, loading } = useAuth();
   
   if (loading) {
+      // Exibe um carregador enquanto verifica o status de autenticação
       return <h1>Carregando...</h1>; 
   }
 
-  // Se o usuário não estiver logado, redireciona para o login
+  // Se o usuário estiver logado (signed é true), renderiza o componente.
+  // Caso contrário, redireciona para a tela de Login ('/').
   return signed ? Element : <Navigate to="/" />; 
 }
 
@@ -27,13 +33,23 @@ export default function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Rota de Login (Se já logado, redireciona para a Home) */}
-        <Route path="/" element={signed ? <Navigate to="/home" /> : <Login />} />
         
-        {/* Rota de Cadastro (Acessível apenas se NÃO estiver logado) */}
-        <Route path="/signup" element={signed ? <Navigate to="/home" /> : <Signup />} /> 
+        {/* --- Rotas Públicas (Acessíveis a todos) --- */}
+        
+        {/* Rota Raiz ('/'): Leva ao Login ou Home, dependendo da sessão */}
+        <Route 
+          path="/" 
+          element={signed ? <Navigate to="/home" /> : <Login />} 
+        />
+        
+        {/* Rota de Cadastro ('/signup'): Acessível apenas se deslogado */}
+        <Route 
+          path="/signup" 
+          element={signed ? <Navigate to="/home" /> : <Signup />} 
+        /> 
 
-        {/* Rotas Privadas (Protegidas) */}
+        {/* --- Rotas Privadas (Protegidas por PrivateRoute) --- */}
+        
         <Route 
           path="/home" 
           element={<PrivateRoute element={<Home />} />} 
@@ -45,6 +61,10 @@ export default function AppRoutes() {
         <Route 
           path="/schedule" 
           element={<PrivateRoute element={<Schedule />} />} 
+        />
+        <Route 
+          path="/appointments-list" // << Nova Rota para Listagem de Consultas
+          element={<PrivateRoute element={<AppointmentList />} />} 
         />
       </Routes>
     </BrowserRouter>
