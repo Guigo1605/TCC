@@ -9,10 +9,9 @@ import Home from '../pages/Home/Home';
 import RegisterAnimal from '../pages/RegisterAnimal/RegisterAnimal';
 import Schedule from '../pages/Schedule/Schedule';
 import AppointmentList from '../pages/AppointmentList/AppointmentList';
-import AnimalList from '../pages/AnimalList/AnimalList'; // << Novo Import
+import AnimalList from '../pages/AnimalList/AnimalList'; // << NOVO IMPORT
 
-// ... (Componente PrivateRoute inalterado)
-
+// Componente de Rota Privada
 function PrivateRoute({ element: Element, ...rest }) {
   const { signed, loading } = useAuth();
   
@@ -40,7 +39,7 @@ export default function AppRoutes() {
         <Route path="/schedule" element={<PrivateRoute element={<Schedule />} />} />
         <Route path="/appointments-list" element={<PrivateRoute element={<AppointmentList />} />} />
         
-        {/* NOVO: Rota para Listagem de Animais */}
+        {/* Rota para Listagem de Animais */}
         <Route 
           path="/animals-list" 
           element={<PrivateRoute element={<AnimalList />} />} 

@@ -8,21 +8,19 @@ const authMiddleware = require('./middlewares/auth');
 
 const routes = new Router();
 
-// ... (Rotas de Autenticação existentes)
-
+// Rotas de Autenticação (Acesso Público)
 routes.post('/users', UserController.store);     
 routes.post('/sessions', UserController.login);  
 
 routes.use(authMiddleware); 
 
-// --- Rotas de Animais (Atualizadas com PUT/DELETE) ---
+// --- Rotas de Animais (Atualizadas) ---
 routes.post('/animals', AnimalController.store);
 routes.get('/animals', AnimalController.index);
-routes.put('/animals/:animal_id', AnimalController.update);   // NOVO: Edição
-routes.delete('/animals/:animal_id', AnimalController.delete); // NOVO: Exclusão
+routes.put('/animals/:animal_id', AnimalController.update);   // EDIÇÃO
+routes.delete('/animals/:animal_id', AnimalController.delete); // EXCLUSÃO
 
-// ... (Rotas de Agendamentos existentes)
-
+// --- Rotas de Agendamentos (Existentes) ---
 routes.post('/appointments', AppointmentController.store);
 routes.get('/appointments', AppointmentController.index);
 routes.put('/appointments/:appointment_id', AppointmentController.update); 

@@ -5,7 +5,7 @@ const User = require('../models/User');
 
 module.exports = {
 
-  // --- STORE (JÁ EXISTENTE) ---
+  // --- STORE (Criação - Já Existente) ---
   async store(req, res) {
     const user_id = req.userId; 
     const { name, species, breed, birth_date } = req.body;
@@ -33,7 +33,7 @@ module.exports = {
     }
   },
 
-  // --- INDEX (JÁ EXISTENTE) ---
+  // --- INDEX (Listagem - Já Existente) ---
   async index(req, res) {
     const user_id = req.userId;
 
@@ -45,6 +45,7 @@ module.exports = {
       return res.status(404).json({ error: 'Tutor não encontrado.' });
     }
 
+    // Retorna apenas os pets (animais) do usuário
     return res.json(user.pets);
   },
 
@@ -55,6 +56,7 @@ module.exports = {
     const { name, species, breed, birth_date } = req.body;
 
     try {
+      // Busca o animal garantindo que ele pertence ao usuário logado
       const animal = await Animal.findOne({ 
         where: { id: animal_id, user_id } 
       });
@@ -63,6 +65,7 @@ module.exports = {
         return res.status(404).json({ error: 'Animal não encontrado ou não pertence a você.' });
       }
 
+      // Atualiza os dados
       const updatedAnimal = await animal.update({
         name,
         species,
@@ -84,6 +87,7 @@ module.exports = {
     const user_id = req.userId;
 
     try {
+      // Busca o animal garantindo que ele pertence ao usuário logado
       const animal = await Animal.findOne({ 
         where: { id: animal_id, user_id } 
       });
@@ -91,7 +95,8 @@ module.exports = {
       if (!animal) {
         return res.status(404).json({ error: 'Animal não encontrado ou não pertence a você.' });
       }
-
+      
+      // Sequelize cuida da exclusão em cascata (se configurado) dos agendamentos
       await animal.destroy();
 
       return res.status(204).send(); // Sucesso sem conteúdo

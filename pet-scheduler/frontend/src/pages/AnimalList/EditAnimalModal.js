@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import api from '../../services/api';
 
-// Função auxiliar para formatar a data ISO para o formato "YYYY-MM-DD" (necessário pelo input date)
+// Função auxiliar para formatar a data ISO para o formato "YYYY-MM-DD"
 function formatDateToInput(isoDate) {
     if (!isoDate) return '';
     const date = new Date(isoDate);
@@ -31,7 +31,7 @@ function EditAnimalModal({ animal, onClose, onUpdateSuccess }) {
         name,
         species,
         breed,
-        birth_date: new Date(birthDate).toISOString(), // Converte para o formato ISO
+        birth_date: new Date(birthDate).toISOString(),
       };
 
       // Chama a rota PUT do Backend
@@ -59,6 +59,8 @@ function EditAnimalModal({ animal, onClose, onUpdateSuccess }) {
     backgroundColor: 'white', padding: '30px', borderRadius: '8px',
     maxWidth: '500px', width: '90%', position: 'relative'
   };
+  const inputGroupStyle = { marginBottom: '15px' };
+  const inputStyle = { width: '100%', padding: '8px', boxSizing: 'border-box' };
 
   return (
     <div style={modalStyle}>
@@ -101,8 +103,5 @@ function EditAnimalModal({ animal, onClose, onUpdateSuccess }) {
     </div>
   );
 }
-
-const inputGroupStyle = { marginBottom: '15px' };
-const inputStyle = { width: '100%', padding: '8px', boxSizing: 'border-box' };
 
 export default EditAnimalModal;

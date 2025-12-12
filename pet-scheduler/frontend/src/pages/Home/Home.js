@@ -25,14 +25,20 @@ function Home() {
             <p>Adicione um novo pet.</p>
           </Link>
 
-          {/* Opção 2: Agendar Horário */}
-          <Link to="/schedule" style={{ textDecoration: 'none', padding: '25px', border: '2px solid #28a745', borderRadius: '8px', width: '200px', backgroundColor: '#e6ffe6' }}>
+          {/* Opção 2: Ver Animais (NOVO LINK) */}
+          <Link to="/animals-list" style={{ textDecoration: 'none', padding: '25px', border: '2px solid #28a745', borderRadius: '8px', width: '200px', backgroundColor: '#e6ffe6' }}>
+            <h4>📝 Ver/Editar Animais</h4>
+            <p>Gerencie seus pets cadastrados.</p>
+          </Link>
+
+          {/* Opção 3: Agendar Horário */}
+          <Link to="/schedule" style={{ textDecoration: 'none', padding: '25px', border: '2px solid #ffc107', borderRadius: '8px', width: '200px', backgroundColor: '#fff8e1' }}>
             <h4>🏥 Agendar Horário</h4>
             <p>Escolha a data e hora.</p>
           </Link>
 
-          {/* Opção 3: Ver Agendamentos (NOVA) */}
-          <Link to="/appointments-list" style={{ textDecoration: 'none', padding: '25px', border: '2px solid #ffc107', borderRadius: '8px', width: '200px', backgroundColor: '#fff8e1' }}>
+          {/* Opção 4: Ver Agendamentos */}
+          <Link to="/appointments-list" style={{ textDecoration: 'none', padding: '25px', border: '2px solid #dc3545', borderRadius: '8px', width: '200px', backgroundColor: '#ffe6e6' }}>
             <h4>📄 Ver Agendamentos</h4>
             <p>Visualize suas consultas futuras.</p>
           </Link>

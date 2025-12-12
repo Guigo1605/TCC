@@ -8,7 +8,7 @@ import EditAnimalModal from './EditAnimalModal'; // Componente a ser criado
 function AnimalList() {
   const [animals, setAnimals] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [editingAnimal, setEditingAnimal] = useState(null); // Para controlar o modal
+  const [editingAnimal, setEditingAnimal] = useState(null); 
   const navigate = useNavigate();
 
   // Função para carregar os animais
@@ -31,11 +31,11 @@ function AnimalList() {
 
   // --- FUNÇÃO PARA EXCLUIR ANIMAL ---
   async function handleDelete(animalId) {
-    if (window.confirm('Tem certeza que deseja EXCLUIR este animal? Todos os agendamentos relacionados serão afetados.')) {
+    if (window.confirm('Tem certeza que deseja EXCLUIR este animal? Todos os agendamentos relacionados serão perdidos.')) {
         try {
+            // Chama a rota DELETE do Backend
             await api.delete(`/animals/${animalId}`);
             
-            // Filtra o animal excluído da lista
             setAnimals(animals.filter(animal => animal.id !== animalId));
             alert('Animal excluído com sucesso!');
         } catch (error) {
@@ -47,12 +47,12 @@ function AnimalList() {
   
   // --- FUNÇÕES DE EDIÇÃO ---
   const handleEdit = (animal) => {
-    setEditingAnimal(animal); // Abre o modal de edição
+    setEditingAnimal(animal); 
   };
 
   const handleUpdateSuccess = () => {
-    setEditingAnimal(null); // Fecha o modal
-    loadAnimals(); // Recarrega os dados atualizados
+    setEditingAnimal(null); 
+    loadAnimals(); 
   };
 
 
