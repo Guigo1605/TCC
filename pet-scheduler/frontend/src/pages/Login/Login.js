@@ -11,40 +11,28 @@ function Login() {
 
     const success = await signIn(email, password);
 
-    if (success) {
-      alert('Login realizado com sucesso!');
-      // O AppRoutes fará o redirecionamento automático para /home
-    } else {
+    if (!success) {
       alert('Erro ao fazer login. Verifique suas credenciais.');
     }
+    // Se for bem-sucedido, o AppRoutes fará o redirecionamento automático
   }
 
   return (
-    <div>
+    <div style={{ padding: '20px', maxWidth: '400px', margin: 'auto' }}>
       <h2>Login - Pet Scheduler</h2>
       <form onSubmit={handleSubmit}>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label htmlFor="email">E-mail</label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+          <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required style={{ width: '100%', padding: '8px' }}/>
         </div>
-        <div>
+        <div style={{ marginBottom: '25px' }}>
           <label htmlFor="password">Senha</label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required style={{ width: '100%', padding: '8px' }}/>
         </div>
-        <button type="submit">Entrar</button>
-        <p>Ainda não tem conta? <a href="/signup">Cadastre-se aqui</a></p>
+        <button type="submit" style={{ width: '100%', padding: '10px', backgroundColor: '#007bff', color: 'white', border: 'none', cursor: 'pointer' }}>Entrar</button>
+        <p style={{ textAlign: 'center', marginTop: '15px' }}>
+          Ainda não tem conta? <a href="/signup">Cadastre-se aqui</a>
+        </p>
       </form>
     </div>
   );
