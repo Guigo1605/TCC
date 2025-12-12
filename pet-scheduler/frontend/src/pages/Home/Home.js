@@ -1,0 +1,59 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+
+function Home() {
+  const { user, signOut } = useAuth();
+
+  return (
+    <div>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 20px', borderBottom: '1px solid #ccc' }}>
+        <h2>Bem-vindo(a), {user.name}! 🐾</h2>
+        <button onClick={signOut} style={{ padding: '8px 15px', cursor: 'pointer' }}>
+          Sair
+        </button>
+      </header>
+      
+      <main style={{ padding: '40px', textAlign: 'center' }}>
+        <h3>O que você deseja fazer hoje?</h3>
+        
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '50px', marginTop: '30px' }}>
+          
+          {/* Opção 1: Registrar Novo Animal */}
+          <Link 
+            to="/register-animal" 
+            style={{ 
+              textDecoration: 'none', 
+              padding: '30px', 
+              border: '2px solid #007bff', 
+              borderRadius: '8px', 
+              width: '200px', 
+              backgroundColor: '#e6f7ff' 
+            }}
+          >
+            <h4>🐕 Registrar Novo Animal</h4>
+            <p>Adicione um novo pet para gerenciar consultas.</p>
+          </Link>
+
+          {/* Opção 2: Agendar Horário */}
+          <Link 
+            to="/schedule" 
+            style={{ 
+              textDecoration: 'none', 
+              padding: '30px', 
+              border: '2px solid #28a745', 
+              borderRadius: '8px', 
+              width: '200px', 
+              backgroundColor: '#e6ffe6' 
+            }}
+          >
+            <h4>🏥 Agendar Horário</h4>
+            <p>Escolha a data e hora para a próxima consulta.</p>
+          </Link>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+export default Home;
