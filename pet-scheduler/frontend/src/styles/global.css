@@ -1,0 +1,341 @@
+/* src/styles/global.css */
+
+/* ---------------------------------------------------- */
+/* --- VARIÁVEIS DE COR (Tema Pata Amiga) --- */
+/* ---------------------------------------------------- */
+:root {
+  --color-primary: #1e3f5a;    /* Azul Escuro (Fundo/Texto Principal) */
+  --color-secondary: #4a8c9b;  /* Azul Petróleo (Destaque/Bordas) */
+  --color-accent: #6cd9cc;     /* Azul Água (Botões/Ícones) */
+  --color-background: #eaf1f9; /* Fundo Suave (Similar ao papel/Fundo da Home/Inputs) */
+  --color-text-light: #f7f7f7;
+  --color-text-dark: #333333;
+}
+
+/* ---------------------------------------------------- */
+/* --- RESET GLOBAL --- */
+/* ---------------------------------------------------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: var(--color-text-dark);
+  background-color: var(--color-primary); 
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-text-dark);
+  font-weight: 600;
+}
+
+a {
+  text-decoration: none;
+  color: var(--color-secondary);
+}
+
+button {
+  font-family: inherit;
+}
+
+/* ---------------------------------------------------- */
+/* --- LAYOUTS GLOBAIS E UTILITÁRIOS --- */
+/* ---------------------------------------------------- */
+
+.container {
+  min-height: 100vh;
+}
+
+/* --- Estilo do Botão Principal (Usado para Sair/Voltar) --- */
+.signOutButton {
+  padding: 8px 15px; 
+  background-color: var(--color-accent); 
+  color: var(--color-primary);
+  border: none;
+  border-radius: 6px; 
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.signOutButton:hover {
+  background-color: #5ab1a7; 
+  transform: none; 
+}
+
+
+/* ---------------------------------------------------- */
+/* --- ESTILOS DA PÁGINA HOME (VISUAL MARKETPLACE) --- */
+/* ---------------------------------------------------- */
+
+/* --- Conteúdo Principal (HOME) --- */
+.mainContent {
+  padding: 40px 20px; 
+  text-align: center;
+  background-color: var(--color-background); /* Fundo claro para o grid da Home */
+}
+
+.mainTitle {
+  color: var(--color-primary); 
+  font-size: 1.8rem;
+  margin-bottom: 40px;
+  font-weight: 700;
+}
+
+/* --- Cartões de Opções (Home Grid) --- */
+.optionsGrid {
+  display: flex;
+  justify-content: center;
+  gap: 20px; 
+  flex-wrap: wrap;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-top: 20px; 
+}
+
+.optionLink {
+  padding: 20px;
+  border-radius: 12px; 
+  width: 200px; 
+  background-color: white; 
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); 
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-align: center; 
+  border: none; 
+}
+
+.optionLink:hover {
+  transform: translateY(-3px); 
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+.optionLink h4 {
+  margin-top: 10px;
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+  color: var(--color-primary); 
+}
+
+.optionLink p {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+/* Cores de Fundo Personalizadas - Home Grid */
+.optionsGrid .option-1 { background-color: #e5f5f4; } 
+.optionsGrid .option-1 h4 { color: var(--color-accent); } 
+.optionsGrid .option-2 { background-color: #f4f6e4; }
+.optionsGrid .option-2 h4 { color: #8e9b4a; }
+.optionsGrid .option-3 { background-color: #f7e6d6; } 
+.optionsGrid .option-3 h4 { color: #d1956e; } 
+.optionsGrid .option-4 { background-color: #e8e3f2; }
+.optionsGrid .option-4 h4 { color: #9c6ed1; } 
+
+/* ---------------------------------------------------- */
+/* --- ESTILOS GERAIS PARA PÁGINAS INTERNAS (Formulários/Listas) --- */
+/* ---------------------------------------------------- */
+
+.mainContentInner { 
+    background-color: var(--color-background);
+    padding: 40px 20px;
+    /* Altura que preenche o resto da tela abaixo do header */
+    min-height: calc(100vh - 105px); 
+}
+
+/* --- Botões Reutilizáveis --- */
+
+.primaryButton {
+    padding: 12px;
+    background-color: var(--color-accent); 
+    color: var(--color-primary);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+    width: 100%;
+}
+
+.primaryButton:hover:not(:disabled) {
+    background-color: #5ab1a7; 
+}
+
+.primaryButton:disabled {
+    background-color: #a0a0a0;
+    cursor: not-allowed;
+}
+
+.secondaryButton {
+    padding: 8px 15px;
+    background-color: transparent;
+    color: var(--color-secondary); 
+    border: 1px solid var(--color-secondary);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.secondaryButton:hover {
+    background-color: var(--color-secondary);
+    color: var(--color-text-light);
+}
+
+/* ---------------------------------------------------- */
+/* --- ESTILOS DE FORMULÁRIO (FormCard) --- */
+/* ---------------------------------------------------- */
+
+.formCard {
+    background-color: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    max-width: 500px; 
+    margin: 0 auto; 
+}
+
+.inputGroup {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.inputLabel {
+    display: block;
+    font-size: 0.95rem;
+    color: var(--color-primary); 
+    margin-bottom: 8px;
+    font-weight: 600;
+    text-align: left;
+}
+
+.inputField {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    background-color: var(--color-background); 
+    color: var(--color-text-dark);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    height: 45px; 
+}
+
+.inputField:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(108, 217, 204, 0.5); 
+    outline: none;
+}
+
+
+/* ---------------------------------------------------- */
+/* --- ESTILOS DA PÁGINA LOGIN/SIGNUP --- */
+/* ---------------------------------------------------- */
+
+.loginPageContainer {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background-color: var(--color-primary); 
+}
+
+.loginCard {
+  width: 100%;
+  max-width: 420px; 
+  background-color: white; 
+  padding: 40px;
+  border-radius: 20px; 
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+/* --- Logo (Estilo para a imagem no Login) --- */
+.logoContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 25px;
+}
+
+.appLogo {
+  max-width: 100%; 
+  height: auto; 
+}
+
+.loginTitle {
+  font-size: 1.5rem;
+  color: var(--color-primary);
+  margin-bottom: 30px;
+  letter-spacing: 1px;
+}
+
+/* --- Formulário de Login --- */
+.loginForm {
+  display: flex;
+  flex-direction: column;
+}
+
+.forgotPasswordLink {
+  display: block;
+  text-align: right;
+  font-size: 0.85rem;
+  color: var(--color-secondary);
+  margin-top: 5px;
+}
+
+.signupText {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 0.9rem;
+}
+
+.signupLink {
+  color: var(--color-secondary);
+  font-weight: 500;
+}
+
+.signupLink:hover {
+  text-decoration: underline;
+}
+
+/* ---------------------------------------------------- */
+/* --- RESPONSIVIDADE GLOBAL --- */
+/* ---------------------------------------------------- */
+@media (max-width: 768px) {
+  /* Home Responsividade */
+  .mainContent {
+    padding: 20px 10px;
+  }
+  .optionsGrid {
+    flex-direction: column;
+    align-items: center;
+  }
+  .optionLink {
+    width: 90%; 
+    max-width: 350px;
+  }
+
+  /* Páginas Internas */
+  .mainContentInner {
+    padding: 20px 10px;
+    min-height: calc(100vh - 80px); /* Ajuste menor de altura para mobile */
+  }
+  .formCard {
+    max-width: 90%;
+    padding: 20px;
+  }
+
+  /* Login Responsividade */
+  .loginCard {
+    padding: 30px 20px;
+  }
+}

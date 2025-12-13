@@ -1,7 +1,11 @@
+// src/pages/Signup/Signup.js
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext'; 
+
+import planoDeFundo from '../../assets/planoDeFundo.png'; 
+import logoImage from '../../assets/logo1.png'; 
 
 function Signup() {
   const [name, setName] = useState('');
@@ -10,7 +14,6 @@ function Signup() {
   const [loading, setLoading] = useState(false);
   
   const navigate = useNavigate();
-  // Importa signIn para autenticar o usuário após o registro bem-sucedido
   const { signIn } = useAuth(); 
 
   async function handleSubmit(e) {
@@ -18,18 +21,16 @@ function Signup() {
     setLoading(true);
 
     if (password.length < 6) {
-        alert('A senha deve ter pelo menos 6 caracteres.');
-        setLoading(false);
-        return;
+      alert('A senha deve ter pelo menos 6 caracteres.');
+      setLoading(false);
+      return;
     }
 
     try {
       const userData = { name, email, password };
 
-      // 1. Envia os dados para a rota POST /users no backend
       await api.post('/users', userData);
       
-      // 2. Faz o login automático usando a função signIn
       const success = await signIn(email, password); 
 
       if (success) {
@@ -47,36 +48,88 @@ function Signup() {
       setLoading(false);
     }
   }
+  
+  // ESTILO DE FUNDO COM ESCALA FIXA (IGUAL AO LOGIN)
+  const backgroundStyle = {
+    backgroundImage: `url(${planoDeFundo})`,
+    backgroundColor: 'var(--color-primary)', 
+    
+    backgroundSize: '100px', 
+    
+    backgroundRepeat: 'repeat',
+    backgroundPosition: '0 0', 
+    backgroundAttachment: 'fixed',
+  };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '400px', margin: 'auto' }}>
-      <h2>Crie sua Conta - Pet Scheduler</h2>
-      <form onSubmit={handleSubmit}>
+    <div className="loginPageContainer" style={backgroundStyle}>
+      
+      <div className="loginCard">
         
-        <div style={{ marginBottom: '15px' }}>
-          <label htmlFor="name">Nome Completo:</label>
-          <input id="name" type="text" value={name} onChange={(e) => setName(e.target.value)} required style={{ width: '100%', padding: '8px' }}/>
+        <div className="logoContainer">
+          <img 
+            src={logoImage} 
+            alt="Logo Pata Amiga" 
+            className="appLogo" 
+          />
         </div>
 
-        <div style={{ marginBottom: '15px' }}>
-          <label htmlFor="email">E-mail:</label>
-          <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required style={{ width: '100%', padding: '8px' }}/>
-        </div>
+        <h2 className="loginTitle">CADASTRO</h2> {/* TÍTULO RESTAURADO */}
+        
+        <form onSubmit={handleSubmit} className="loginForm">
+          
+          <div className="inputGroup">
+            <label htmlFor="name" className="inputLabel">Nome Completo:</label>
+            <input 
+              id="name" 
+              type="text" 
+              value={name} 
+              onChange={(e) => setName(e.target.value)} 
+              required 
+              className="inputField"
+              placeholder="Seu nome completo"
+            />
+          </div>
 
-        <div style={{ marginBottom: '25px' }}>
-          <label htmlFor="password">Senha (mín. 6 caracteres):</label>
-          <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required style={{ width: '100%', padding: '8px' }}/>
-        </div>
-        
-        <button type="submit" disabled={loading} style={{ width: '100%', padding: '10px', backgroundColor: '#007bff', color: 'white', border: 'none', cursor: 'pointer' }}>
-          {loading ? 'Registrando...' : 'Cadastrar'}
-        </button>
-        
-        <p style={{ textAlign: 'center', marginTop: '15px' }}>
-          Já tem conta? <a href="/">Fazer Login</a>
-        </p>
-      </form>
-    </div>
+          <div className="inputGroup">
+            <label htmlFor="email" className="inputLabel">E-mail:</label>
+            <input 
+              id="email" 
+              type="email" 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
+              required 
+              className="inputField"
+              placeholder="seuemail@exemplo.com"
+            />
+          </div>
+
+          <div className="inputGroup">
+            <label htmlFor="password" className="inputLabel">Senha (mín. 6 caracteres):</label>
+            <input 
+              id="password" 
+              type="password" 
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)} 
+              required 
+              className="inputField"
+            />
+          </div>
+          
+          <button 
+            type="submit" 
+            disabled={loading} 
+            className="loginButton"
+          >
+            {loading ? 'Registrando...' : 'Cadastrar'}
+          </button>
+          
+          <p className="signupText">
+            Já tem conta? <Link to="/" className="signupLink">Fazer Login</Link>
+          </p>
+        </form>
+      </div>
+   </div>
   );
 }
 

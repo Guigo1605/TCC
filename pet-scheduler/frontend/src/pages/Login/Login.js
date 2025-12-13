@@ -1,5 +1,12 @@
+// src/pages/Login/Login.js
+
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { Link } from 'react-router-dom'; 
+
+// Importa a imagem de fundo e o NOVO LOGO
+import planoDeFundo from '../../assets/planoDeFundo.png'; 
+import logoImage from '../../assets/logo1.png'; // <--- CAMINHO CORRIGIDO
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -8,32 +15,69 @@ function Login() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-
     const success = await signIn(email, password);
-
     if (!success) {
       alert('Erro ao fazer login. Verifique suas credenciais.');
     }
-    // Se for bem-sucedido, o AppRoutes fará o redirecionamento automático
   }
 
+  const backgroundStyle = {
+    backgroundImage: `url(${planoDeFundo})`,
+    backgroundColor: 'var(--color-primary)', 
+    backgroundSize: '100%', 
+    backgroundRepeat: 'repeat',
+    backgroundPosition: '0 0', 
+  };
+
   return (
-    <div style={{ padding: '20px', maxWidth: '400px', margin: 'auto' }}>
-      <h2>Login - Pet Scheduler</h2>
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '15px' }}>
-          <label htmlFor="email">E-mail</label>
-          <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required style={{ width: '100%', padding: '8px' }}/>
+    <div className="loginPageContainer" style={backgroundStyle}>
+      
+      <div className="loginCard">
+        
+        {/* NOVO LOGO: Substituição do ícone e texto pela imagem */}
+        <div className="logoContainer">
+          <img 
+            src={logoImage} 
+            alt="Logo Pata Amiga" 
+            className="appLogo" 
+          />
         </div>
-        <div style={{ marginBottom: '25px' }}>
-          <label htmlFor="password">Senha</label>
-          <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required style={{ width: '100%', padding: '8px' }}/>
-        </div>
-        <button type="submit" style={{ width: '100%', padding: '10px', backgroundColor: '#007bff', color: 'white', border: 'none', cursor: 'pointer' }}>Entrar</button>
-        <p style={{ textAlign: 'center', marginTop: '15px' }}>
-          Ainda não tem conta? <a href="/signup">Cadastre-se aqui</a>
-        </p>
-      </form>
+        
+        <form onSubmit={handleSubmit} className="loginForm">
+          
+          <div className="inputGroup">
+            <label htmlFor="email" className="inputLabel">E-mail</label>
+            <input 
+              id="email" 
+              type="email" 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
+              required 
+              className="inputField"
+              placeholder="seuemail@exemplo.com"
+            />
+          </div>
+          
+          <div className="inputGroup">
+            <label htmlFor="password" className="inputLabel">Senha</label>
+            <input 
+              id="password" 
+              type="password" 
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)} 
+              required 
+              className="inputField"
+            />
+            <Link to="/forgot-password" className="forgotPasswordLink">Esqueci minha senha</Link>
+          </div>
+          
+          <button type="submit" className="loginButton primaryButton">Entrar</button>
+          
+          <p className="signupText">
+            <Link to="/signup" className="signupLink">Criar conta</Link>
+          </p>
+        </form>
+      </div>
     </div>
   );
 }
