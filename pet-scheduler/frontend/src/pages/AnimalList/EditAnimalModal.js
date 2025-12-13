@@ -1,107 +1,144 @@
-// frontend/src/pages/AnimalList/EditAnimalModal.js
+// src/pages/AnimalList/EditAnimalModal.js
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+// eslint-disable-next-line
 import api from '../../services/api';
 
 // Função auxiliar para formatar a data ISO para o formato "YYYY-MM-DD"
 function formatDateToInput(isoDate) {
     if (!isoDate) return '';
-    const date = new Date(isoDate);
-    const yyyy = date.getFullYear();
-    const mm = String(date.getMonth() + 1).padStart(2, '0');
-    const dd = String(date.getDate()).padStart(2, '0');
     
-    return `${yyyy}-${mm}-${dd}`;
+    const datePart = isoDate.split('T')[0];
+    if (datePart.length === 10) return datePart;
+
+    try {
+        const dateObj = new Date(isoDate);
+        if (isNaN(dateObj.getTime())) return ''; 
+
+        const yyyy = dateObj.getFullYear();
+        const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const dd = String(dateObj.getDate()).padStart(2, '0');
+        
+        return `${yyyy}-${mm}-${dd}`;
+    } catch (e) {
+        return '';
+    }
 }
 
 
 function EditAnimalModal({ animal, onClose, onUpdateSuccess }) {
-  const [name, setName] = useState(animal.name);
-  const [species, setSpecies] = useState(animal.species);
-  const [breed, setBreed] = useState(animal.breed);
-  const [birthDate, setBirthDate] = useState(formatDateToInput(animal.birth_date));
-  const [loading, setLoading] = useState(false);
+    
+    // Os Hooks são chamados no topo, incondicionalmente.
+    const [name, setName] = useState(animal.name);
+    const [species, setSpecies] = useState(animal.species);
+    const [breed, setBreed] = useState(animal.breed || '');
+    const [birthDate, setBirthDate] = useState(formatDateToInput(animal.birth_date));
+    const [loading, setLoading] = useState(false);
+    
+    // Lógica para resetar os estados se o animal de edição mudar
+    useEffect(() => {
+        setName(animal.name);
+        setSpecies(animal.species);
+        setBreed(animal.breed || '');
+        setBirthDate(formatDateToInput(animal.birth_date));
+    }, [animal]); 
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setLoading(true);
 
-    try {
-      const updatedData = {
-        name,
-        species,
-        breed,
-        birth_date: new Date(birthDate).toISOString(),
-      };
+    async function handleSubmit(e) {
+        e.preventDefault();
+        setLoading(true);
 
-      // Chama a rota PUT do Backend
-      await api.put(`/animals/${animal.id}`, updatedData);
-      
-      alert(`Animal "${name}" atualizado com sucesso!`);
-      onUpdateSuccess(); // Fecha o modal e recarrega a lista
+        if (!name || !species) {
+            alert('Nome e Espécie são obrigatórios.');
+            setLoading(false);
+            return;
+        }
 
-    } catch (error) {
-      console.error("Erro ao editar animal:", error.response?.data?.error || error.message);
-      alert(`Erro ao atualizar: ${error.response?.data?.error || 'Ocorreu um erro.'}`);
-    } finally {
-      setLoading(false);
+        try {
+            const updatedData = {
+                name,
+                species,
+                breed,
+                birth_date: birthDate ? new Date(birthDate).toISOString() : null,
+            };
+
+            // eslint-disable-next-line
+            await api.put(`/animals/${animal.id}`, updatedData);
+
+            alert(`Animal "${name}" atualizado com sucesso!`);
+            onUpdateSuccess(); 
+        } catch (error) {
+            console.error("Erro ao atualizar animal:", error.response?.data?.error || error.message);
+            alert('Erro ao atualizar o animal. Tente novamente.');
+        } finally {
+            setLoading(false);
+        }
     }
-  }
 
-  // Estilos simples de modal
-  const modalStyle = {
-    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.5)', 
-    display: 'flex', justifyContent: 'center', alignItems: 'center',
-    zIndex: 1000
-  };
-  const contentStyle = {
-    backgroundColor: 'white', padding: '30px', borderRadius: '8px',
-    maxWidth: '500px', width: '90%', position: 'relative'
-  };
-  const inputGroupStyle = { marginBottom: '15px' };
-  const inputStyle = { width: '100%', padding: '8px', boxSizing: 'border-box' };
+    return (
+        <div className="modalOverlay" onClick={onClose}>
+            <div className="modalContent" onClick={(e) => e.stopPropagation()}>
+                
+                {/* CORREÇÃO APLICADA AQUI: usando a tag <strong> */}
+                <h3 className="modalTitle">Editar Dados do Pet: <strong>{animal.name}</strong></h3>
+                
+                <button className="modalCloseButton" onClick={onClose}>&times;</button>
+                
+                <form onSubmit={handleSubmit} className="formCard formModal">
+                    
+                    <div className="inputGroup">
+                        <label htmlFor="edit-name" className="inputLabel">Nome do Pet:</label>
+                        <input
+                            id="edit-name" type="text" value={name} 
+                            onChange={(e) => setName(e.target.value)} required className="inputField"
+                        />
+                    </div>
 
-  return (
-    <div style={modalStyle}>
-      <div style={contentStyle}>
-        <button onClick={onClose} style={{ position: 'absolute', top: '10px', right: '10px', cursor: 'pointer' }}>X</button>
-        
-        <h3>Editar Dados do Pet: **{animal.name}**</h3>
+                    <div className="inputGroup">
+                        <label htmlFor="edit-species" className="inputLabel">Espécie:</label>
+                        <select id="edit-species" value={species} onChange={(e) => setSpecies(e.target.value)} required className="inputField">
+                            <option value="">Selecione a Espécie</option>
+                            <option value="Cachorro">Cachorro</option>
+                            <option value="Gato">Gato</option>
+                            <option value="Pássaro">Pássaro</option>
+                            <option value="Outro">Outro</option>
+                        </select>
+                    </div>
 
-        <form onSubmit={handleSubmit} style={{ marginTop: '20px' }}>
-          
-          <div style={inputGroupStyle}>
-            <label htmlFor="edit-name">Nome:</label>
-            <input id="edit-name" type="text" value={name} onChange={(e) => setName(e.target.value)} required style={inputStyle} />
-          </div>
+                    <div className="inputGroup">
+                        <label htmlFor="edit-breed" className="inputLabel">Raça (Opcional):</label>
+                        <input id="edit-breed" type="text" value={breed} 
+                            onChange={(e) => setBreed(e.target.value)} className="inputField"
+                        />
+                    </div>
 
-          <div style={inputGroupStyle}>
-            <label htmlFor="edit-species">Espécie:</label>
-            <input id="edit-species" type="text" value={species} onChange={(e) => setSpecies(e.target.value)} required style={inputStyle} />
-          </div>
-
-          <div style={inputGroupStyle}>
-            <label htmlFor="edit-breed">Raça:</label>
-            <input id="edit-breed" type="text" value={breed} onChange={(e) => setBreed(e.target.value)} style={inputStyle} />
-          </div>
-          
-          <div style={inputGroupStyle}>
-            <label htmlFor="edit-birthDate">Data de Nascimento:</label>
-            <input id="edit-birthDate" type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} style={inputStyle} />
-          </div>
-          
-          <button 
-            type="submit" 
-            disabled={loading} 
-            style={{ width: '100%', padding: '10px', backgroundColor: '#28a745', color: 'white', border: 'none', cursor: 'pointer' }}
-          >
-            {loading ? 'Salvando...' : 'Salvar Dados'}
-          </button>
-        </form>
-      </div>
-    </div>
-  );
+                    <div className="inputGroup">
+                        <label htmlFor="edit-birthDate" className="inputLabel">Data de Nascimento:</label>
+                        <input id="edit-birthDate" type="date" value={birthDate} 
+                            onChange={(e) => setBirthDate(e.target.value)} className="inputField"
+                        />
+                    </div>
+                    
+                    <button 
+                        type="submit" 
+                        disabled={loading}
+                        className="primaryButton"
+                    >
+                        {loading ? 'Salvando...' : 'Salvar Alterações'}
+                    </button>
+                    
+                    <button 
+                        type="button" 
+                        className="secondaryButton" 
+                        onClick={onClose}
+                        style={{marginTop: '10px'}}
+                    >
+                        Cancelar
+                    </button>
+                </form>
+            </div>
+        </div>
+    );
 }
 
 export default EditAnimalModal;

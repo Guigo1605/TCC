@@ -1,11 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+// eslint-disable-next-line
 import api from '../../services/api';
 
 // Função auxiliar para formatar a data ISO para o formato "YYYY-MM-DDTHH:MM" (necessário pelo input datetime-local)
 function formatToInputDateTime(isoDate) {
     if (!isoDate) return '';
+    
+    // Converte a string ISO para um objeto Date
     const date = new Date(isoDate);
     
+    // Verifica se a data é válida
+    if (isNaN(date.getTime())) return '';
+
     // Formato YYYY-MM-DD
     const yyyy = date.getFullYear();
     const mm = String(date.getMonth() + 1).padStart(2, '0');
@@ -18,100 +24,113 @@ function formatToInputDateTime(isoDate) {
     return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
 }
 
-
 function EditAppointmentModal({ appointment, onClose, onUpdateSuccess }) {
-  const [date, setDate] = useState(formatToInputDateTime(appointment.date));
-  const [description, setDescription] = useState(appointment.description || '');
-  const [loading, setLoading] = useState(false);
+    // Garantia de que os hooks são chamados incondicionalmente
+    const [date, setDate] = useState(formatToInputDateTime(appointment.date));
+    const [description, setDescription] = useState(appointment.description || '');
+    const [loading, setLoading] = useState(false);
 
-  // O status é mantido como 'scheduled' no frontend do tutor para simplificação
-  // Apenas o veterinário/admin mudaria para 'completed' ou 'canceled'
+    // Efeito para re-renderizar o modal caso a prop 'appointment' mude
+    useEffect(() => {
+        setDate(formatToInputDateTime(appointment.date));
+        setDescription(appointment.description || '');
+    }, [appointment]);
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setLoading(true);
 
-    // Converte de volta para o formato ISO que o backend espera
-    const newDate = new Date(date).toISOString(); 
+    async function handleSubmit(e) {
+        e.preventDefault();
+        setLoading(true);
 
-    try {
-      const updatedData = {
-        date: newDate,
-        description,
-        status: 'scheduled' // Mantém o status como agendado ao editar
-      };
+        // Converte de volta para o formato ISO que o backend espera
+        const newDate = new Date(date).toISOString(); 
 
-      // Chama a rota PUT do Backend
-      await api.put(`/appointments/${appointment.id}`, updatedData);
-      
-      alert('Agendamento atualizado com sucesso!');
-      onUpdateSuccess(); // Chama a função para fechar o modal e recarregar a lista
+        try {
+            const updatedData = {
+                date: newDate,
+                description,
+                status: 'scheduled' // Mantém o status como agendado
+            };
 
-    } catch (error) {
-      console.error("Erro ao editar agendamento:", error.response?.data?.error || error.message);
-      alert(`Erro ao atualizar: ${error.response?.data?.error || 'Verifique se a nova data está no futuro.'}`);
-    } finally {
-      setLoading(false);
+            // eslint-disable-next-line
+            await api.put(`/appointments/${appointment.id}`, updatedData);
+            
+            alert('Agendamento atualizado com sucesso!');
+            onUpdateSuccess(); 
+
+        } catch (error) {
+            console.error("Erro ao editar agendamento:", error.response?.data?.error || error.message);
+            alert(`Erro ao atualizar: ${error.response?.data?.error || 'Verifique se a nova data está no futuro e tente novamente.'}`);
+        } finally {
+            setLoading(false);
+        }
     }
-  }
 
-  // Estilos simples de modal (pode ser melhorado com CSS)
-  const modalStyle = {
-    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.5)', 
-    display: 'flex', justifyContent: 'center', alignItems: 'center',
-    zIndex: 1000
-  };
-  const contentStyle = {
-    backgroundColor: 'white', padding: '30px', borderRadius: '8px',
-    maxWidth: '500px', width: '90%', position: 'relative'
-  };
+    // Se o animal não veio junto com o agendamento (improvável, mas segurança), usamos 'Pet Indefinido'
+    const petName = appointment.pet?.name || 'Pet Indefinido';
+    const petSpecies = appointment.pet?.species || 'Espécie Desconhecida';
 
-  return (
-    <div style={modalStyle}>
-      <div style={contentStyle}>
-        <button onClick={onClose} style={{ position: 'absolute', top: '10px', right: '10px', cursor: 'pointer' }}>X</button>
-        
-        <h3>Editar Agendamento</h3>
-        <p>Pet: **{appointment.pet.name}**</p>
-        <p>Espécie: *{appointment.pet.species}*</p>
 
-        <form onSubmit={handleSubmit} style={{ marginTop: '20px' }}>
-          
-          <div style={{ marginBottom: '15px' }}>
-            <label htmlFor="edit-date">Nova Data e Hora:</label>
-            <input 
-              id="edit-date" 
-              type="datetime-local" 
-              value={date} 
-              onChange={(e) => setDate(e.target.value)} 
-              required 
-              style={{ width: '100%', padding: '8px' }}
-            />
-          </div>
+    return (
+        // Substituindo styles por classes globais
+        <div className="modalOverlay" onClick={onClose}>
+            <div className="modalContent" onClick={(e) => e.stopPropagation()}>
+                
+                {/* Título com negrito (strong) */}
+                <h3 className="modalTitle">Reagendar Consulta</h3>
+                <p>Pet: <strong>{petName}</strong> | Espécie: <span>{petSpecies}</span></p>
+                
+                {/* Botão de fechar */}
+                <button className="modalCloseButton" onClick={onClose}>&times;</button>
 
-          <div style={{ marginBottom: '25px' }}>
-            <label htmlFor="edit-description">Motivo (Opcional):</label>
-            <textarea 
-              id="edit-description" 
-              value={description} 
-              onChange={(e) => setDescription(e.target.value)} 
-              rows="3"
-              style={{ width: '100%', padding: '8px' }}
-            />
-          </div>
-          
-          <button 
-            type="submit" 
-            disabled={loading} 
-            style={{ width: '100%', padding: '10px', backgroundColor: '#007bff', color: 'white', border: 'none', cursor: 'pointer' }}
-          >
-            {loading ? 'Salvando...' : 'Salvar Alterações'}
-          </button>
-        </form>
-      </div>
-    </div>
-  );
+                <form onSubmit={handleSubmit} className="formCard formModal" style={{marginTop: '20px'}}>
+                    
+                    {/* Campo 1: Data e Hora */}
+                    <div className="inputGroup">
+                        <label htmlFor="edit-date" className="inputLabel">Nova Data e Hora:</label>
+                        <input 
+                            id="edit-date" 
+                            type="datetime-local" 
+                            value={date} 
+                            onChange={(e) => setDate(e.target.value)} 
+                            required 
+                            className="inputField"
+                        />
+                    </div>
+
+                    {/* Campo 2: Descrição */}
+                    <div className="inputGroup">
+                        <label htmlFor="edit-description" className="inputLabel">Motivo (Opcional):</label>
+                        <textarea 
+                            id="edit-description" 
+                            value={description} 
+                            onChange={(e) => setDescription(e.target.value)} 
+                            rows="3"
+                            className="inputField"
+                        />
+                    </div>
+                    
+                    {/* Botão de Salvar */}
+                    <button 
+                        type="submit" 
+                        disabled={loading} 
+                        className="primaryButton"
+                    >
+                        {loading ? 'Salvando...' : 'Salvar Alterações'}
+                    </button>
+                    
+                    {/* Botão de Cancelar/Fechar */}
+                    <button 
+                        type="button" 
+                        className="secondaryButton" 
+                        onClick={onClose}
+                        style={{marginTop: '10px'}}
+                    >
+                        Cancelar Edição
+                    </button>
+                </form>
+            </div>
+        </div>
+    );
 }
 
 export default EditAppointmentModal;
